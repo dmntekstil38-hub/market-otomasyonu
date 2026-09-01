@@ -1,0 +1,443 @@
+/* ==========================================
+   GENEL RESET VE MOBİL UYUMLU ESNEK YAPI
+   ========================================== */
+* {
+  box-sizing: border-box;
+}
+
+.otomasyon-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: #0f172a;
+  color: #f8fafc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
+}
+
+/* ==========================================
+   ÜST HEADER / MENÜ (TÜM CİHAZLARA UYUMLU)
+   ========================================== */
+.ust-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e293b;
+  padding: 10px 15px;
+  border-bottom: 2px solid #334155;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.logo-alan h2 {
+  margin: 0;
+  color: #fbbf24;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.logo-alan span {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.menu-butonlari {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.menu-butonlari button {
+  background: #334155;
+  color: #cbd5e1;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.menu-butonlari button:hover {
+  background: #475569;
+  color: #fff;
+}
+
+.menu-butonlari button.aktif {
+  background: #2563eb;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+}
+
+.personel-secici select {
+  background: #334155;
+  color: #fff;
+  border: 1px solid #475569;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ==========================================
+   İÇERİK ALANI VE SATIŞ EKRANI (GRID / FLEX)
+   ========================================== */
+.icerik-alani {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  width: 100%;
+}
+
+.satis-ekrani-grid {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* SOL TARAF: ÜRÜNLER */
+.sol-urun-bolumu {
+  flex: 7;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  gap: 12px;
+  background: #0f172a;
+  overflow: hidden;
+}
+
+.musteri-secim-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1e293b;
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  flex-shrink: 0;
+}
+
+.musteri-secim-bar select {
+  padding: 8px;
+  background: #0f172a;
+  color: #fff;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ÜRÜN KARTLARI (OTOMATİK BOYUTLANAN GRID) */
+.urun-grid-kutu {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+}
+
+.urun-kart-pos {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  border: 2px solid #334155;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 170px;
+}
+
+.urun-kart-pos:hover {
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+}
+
+.urun-kart-pos:active {
+  transform: scale(0.96);
+  border-color: #10b981;
+}
+
+.urun-kart-pos img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.urun-kart-pos h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.urun-kart-pos span {
+  color: #34d399;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.urun-kart-pos small {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+/* SAĞ TARAF: SEPET */
+.sag-sepet-bolumu {
+  flex: 3;
+  min-width: 280px;
+  background: #1e293b;
+  border-left: 2px solid #334155;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.sag-sepet-bolumu h3 {
+  margin-top: 0;
+  font-size: 16px;
+  color: #f8fafc;
+  border-bottom: 2px solid #334155;
+  padding-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.sepet-liste-icerik {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  padding-right: 4px;
+}
+
+.bos-mesaj {
+  color: #64748b;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.sepet-satir {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #334155;
+  font-size: 13px;
+}
+
+.sepet-alt-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #0f172a;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  flex-shrink: 0;
+}
+
+.sepet-alt-panel h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #38bdf8;
+  text-align: right;
+}
+
+.sepet-alt-panel button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  color: #fff;
+  transition: filter 0.2s;
+}
+
+.sepet-alt-panel button:hover {
+  filter: brightness(1.15);
+}
+
+/* ORTAK BUTON RENKLERİ */
+.btn-yesil { background: #059669; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.btn-turuncu { background: #d97706; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.btn-mavi { background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.btn-kirmizi { background: #dc2626; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.btn-kirmizi-kucuk { background: #dc2626; border: none; padding: 6px 10px; border-radius: 6px; color: #fff; font-weight: 600; cursor: pointer; font-size: 12px; }
+
+/* MODALLAR */
+.modal-arkaplan {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 15px;
+}
+
+.modal-kutu, .fis-onizleme-kutu {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 380px;
+  border: 1px solid #475569;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.termal-fis {
+  background: #ffffff;
+  color: #000000;
+  padding: 15px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.termal-fis table { width: 100%; border-collapse: collapse; }
+.termal-fis th, .termal-fis td { text-align: left; padding: 3px; }
+
+.fis-butonlar { display: flex; flex-direction: column; gap: 8px; }
+.fis-butonlar button { padding: 10px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; color: #fff; }
+
+/* YÖNETİM SAYFALARI */
+.yonetim-sayfasi {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  background: #0f172a;
+  width: 100%;
+}
+
+.ozet-kartlar {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.kart {
+  padding: 18px;
+  border-radius: 12px;
+  flex: 1;
+  min-width: 200px;
+  font-size: 15px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.kart.mavi { background: #1e3a8a; } 
+.kart.sari { background: #78350f; } 
+.kart.yesil { background: #065f46; }
+
+.veri-tablosu {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: #1e293b;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 13px;
+}
+
+.veri-tablosu th, .veri-tablosu td {
+  padding: 12px;
+  border-bottom: 1px solid #334155;
+  text-align: left;
+}
+
+.veri-tablosu th {
+  background: #334155;
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.form-sirali {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  flex-wrap: wrap;
+}
+
+.form-sirali input, .form-sirali select {
+  padding: 10px;
+  background: #0f172a;
+  border: 1px solid #475569;
+  color: #fff;
+  border-radius: 8px;
+  flex: 1;
+  min-width: 140px;
+  font-size: 13px;
+}
+
+.text-yesil { color: #34d399; font-weight: 700; } 
+.text-kirmizi { color: #f87171; font-weight: 700; }
+
+/* ==========================================
+   TELEFON VE TABLET UYUMLU ÖZEL MEDYA SORGULARI
+   ========================================== */
+@media screen and (max-width: 768px) {
+  .satis-ekrani-grid {
+    flex-direction: column !important;
+    height: auto !important;
+    overflow-y: auto !important;
+  }
+  
+  .sol-urun-bolumu {
+    flex: none !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  
+  .sag-sepet-bolumu {
+    flex: none !important;
+    min-width: 100% !important;
+    height: auto !important;
+    border-left: none !important;
+    border-top: 2px solid #334155 !important;
+  }
+  
+  .ust-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .menu-butonlari {
+    justify-content: space-between !important;
+  }
+  
+  .menu-butonlari button {
+    flex: 1 !important;
+    padding: 8px 4px !important;
+    font-size: 11px !important;
+    text-align: center !important;
+  }
+}
