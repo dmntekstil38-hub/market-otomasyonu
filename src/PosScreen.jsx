@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import './PosScreen.css';
 
-// 🌐 SUPABASE BAĞLANTI BİLGİLERİNİZ (TAMAMLANDI)
+// 🌐 SUPABASE BAĞLANTI BİLGİLERİNİZ
 const SUPABASE_URL = 'https://odyrnbybxfauotoviabi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_TXgWXQT9BoJ1i2EybvbLIQ_r_CjJZZm';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -17,7 +17,6 @@ const BOLD_ON = ESC + 'E' + '\x01';
 const BOLD_OFF = ESC + 'E' + '\x00';
 const CUT = GS + 'V' + '\x41' + '\x00';
 
-// Türkçe Harfleri ve Özel Karakterleri Yazıcı İçin Güvenli Hale Getirme
 function trToAscii(str) {
   if (!str) return '';
   return String(str)
@@ -29,7 +28,6 @@ function trToAscii(str) {
     .replace(/Ç/g, 'C').replace(/ç/g, 'c');
 }
 
-// Fişi oluşturan fonksiyon
 function formatReceipt(satis) {
   let encoder = new TextEncoder();
   let rawText = '';
@@ -37,7 +35,7 @@ function formatReceipt(satis) {
   rawText += INIT;
   rawText += FONT_A; 
   rawText += ALIGN_LEFT; 
-  rawText += BOLD_ON + '   ADEM HAKLI BAHARAT\n' + BOLD_OFF;
+  rawText += BOLD_ON + '     ADEM HAKLI BAHARAT\n' + BOLD_OFF;
   rawText += ' BILGI AMACLI MALI DEGERI YOKTUR\n';
   rawText += '------------------------------\n'; 
   rawText += `TARIH: ${satis.tarih}\n`;
@@ -74,7 +72,6 @@ export default function PosScreen() {
   const [aktifSekme, setAktifSekme] = useState('satis');
   const [aktifPersonel, setAktifPersonel] = useState({ ad: "Adem Haklı", rol: "YÖNETİCİ" });
 
-  // ☁️ BULUT VERİLERİ (SUPABASE ÜZERİNDEN ÇEKİLİR)
   const [musteriler, setMusteriler] = useState([]);
   const [kullanicilar, setKullanicilar] = useState([]);
   const [urunler, setUrunler] = useState([]);
@@ -94,19 +91,19 @@ export default function PosScreen() {
   const [fisModalAcik, setFisModalAcik] = useState(false);
   const [sonSatisDetayi, setSonSatisDetayi] = useState(null);
 
-  // 🔄 UYGULAMA AÇILINCA VE CANLI OLARAK BULUTTAN VERİLERİ ÇEK
+  // 🔄 VERİLERİ ÇEK (customers, users, products, sales tabloları)
   const verileriGetir = async () => {
     try {
-      const { data: mData } = await supabase.from('musteriler').select('*');
+      const { data: mData } = await supabase.from('customers').select('*');
       if (mData) setMusteriler(mData);
 
-      const { data: kData } = await supabase.from('kullanicilar').select('*');
+      const { data: kData } = await supabase.from('users').select('*');
       if (kData) setKullanicilar(kData);
 
-      const { data: uData } = await supabase.from('urunler').select('*');
+      const { data: uData } = await supabase.from('products').select('*');
       if (uData) setUrunler(uData);
 
-      const { data: sData } = await supabase.from('satislar').select('*').order('id', { ascending: false });
+      const { data: sData } = await supabase.from('sales').select('*').order('id', { ascending: false });
       if (sData) setSatisHareketleri(sData);
     } catch (err) {
       console.error("Supabase veri çekme hatası:", err);
@@ -116,10 +113,9 @@ export default function PosScreen() {
   useEffect(() => {
     verileriGetir();
 
-    // Supabase Realtime (Anlık Senkronizasyon Dinleyicisi)
     const kanal = supabase.channel('realtime-tum-tablolar')
       .on('postgres_changes', { event: '*', schema: 'public' }, () => {
-        verileriGetir(); // Herhangi bir tabloda değişiklik olduğunda tüm cihazlar anında güncellenir
+        verileriGetir();
       })
       .subscribe();
 
@@ -186,36 +182,46 @@ export default function PosScreen() {
     setFisModalAcik(true);
   };
 
-  // 💾 SATIŞI BULUTA VE VERİTABANINA KALICI OLARAK İŞLE
+  // 💾 SATIŞI BULUTA İŞLE
   const fisiKapatVeKaydet = async () => {
     if (!sonSatisDetayi) return;
 
-    const guncelMusteri = musteriler.find(m => m.ad === sonSatisDetayi.musteri);
-    if (guncelMusteri) {
-      await supabase
-        .from('musteriler')
-        .update({ bakiye: sonSatisDetayi.yeniBakiye })
-        .eq('id', guncelMusteri.id);
+    try {
+      const guncelMusteri = musteriler.find(m => m.ad === sonSatisDetayi.musteri);
+      if (guncelMusteri) {
+        const { error: miktarHata } = await supabase
+          .from('customers')
+          .update({ bakiye: sonSatisDetayi.yeniBakiye })
+          .eq('id', guncelMusteri.id);
+        
+        if (miktarHata) throw miktarHata;
+      }
+
+      const urunOzetMetni = sonSatisDetayi.urunlerListesi.map(u => `${u.miktar}x ${u.ad}`).join(', ');
+
+      const yeniHareket = {
+        tarih: sonSatisDetayi.tarih,
+        eleman: sonSatisDetayi.eleman,
+        musteri: sonSatisDetayi.musteri,
+        urunlerListesi: urunOzetMetni, 
+        tutar: sonSatisDetayi.toplamTutar,
+        nakit: sonSatisDetayi.nakitOdienen,
+        veresiye: sonSatisDetayi.veresiyeYazilan
+      };
+
+      const { error: satisHata } = await supabase.from('sales').insert([yeniHareket]);
+      if (satisHata) throw satisHata;
+
+      setSepet([]);
+      setSecilenMusteri(null);
+      setNakitAlinan('');
+      setFisModalAcik(false);
+      verileriGetir();
+      alert("✅ Satış başarıyla buluta işlendi!");
+    } catch (err) {
+      console.error("Satış kaydetme hatası:", err);
+      alert("Satış kaydedilirken hata oluştu: " + err.message);
     }
-
-    const yeniHareket = {
-      tarih: sonSatisDetayi.tarih,
-      eleman: sonSatisDetayi.eleman,
-      musteri: sonSatisDetayi.musteri,
-      urunlerListesi: sonSatisDetayi.urunlerListesi,
-      tutar: sonSatisDetayi.toplamTutar,
-      nakit: sonSatisDetayi.nakitOdienen,
-      veresiye: sonSatisDetayi.veresiyeYazilan
-    };
-
-    await supabase.from('satislar').insert([yeniHareket]);
-
-    setSepet([]);
-    setSecilenMusteri(null);
-    setNakitAlinan('');
-    setFisModalAcik(false);
-    verileriGetir();
-    alert("✅ Satış buluta işlendi! Tüm cihazlar anında güncellendi.");
   };
 
   const xprinterYazdir = async () => {
@@ -268,50 +274,92 @@ export default function PosScreen() {
 
   const cariEkstrePdfYazdir = () => { window.print(); };
 
+  // 🏢 FİRMA / MÜŞTERİ EKLEME (customers tablosu)
   const firmaEkle = async () => {
-    if (!yeniMusteri.ad) return;
-    await supabase.from('musteriler').insert([{
-      ad: yeniMusteri.ad,
-      telefon: yeniMusteri.telefon || '-',
-      adres: yeniMusteri.adres || '-',
-      bakiye: 0
-    }]);
-    setYeniMusteri({ ad: '', telefon: '', adres: '' });
-    verileriGetir();
+    if (!yeniMusteri.ad) {
+      alert("Lütfen firma / müşteri adı girin!");
+      return;
+    }
+    try {
+      const { error } = await supabase.from('customers').insert([{
+        ad: yeniMusteri.ad,
+        telefon: yeniMusteri.telefon || '-',
+        adres: yeniMusteri.adres || '-',
+        bakiye: 0
+      }]);
+      if (error) throw error;
+
+      setYeniMusteri({ ad: '', telefon: '', adres: '' });
+      verileriGetir();
+      alert("✅ Müşteri başarıyla eklendi!");
+    } catch (err) {
+      console.error("Firma ekleme hatası:", err);
+      alert("Müşteri eklenirken hata oluştu: " + err.message);
+    }
   };
 
+  // 👤 KULLANICI EKLEME (users tablosu)
   const kullaniciEkle = async () => {
-    if (!yeniPersonel.adSoyad || !yeniPersonel.kullaniciAdi || !yeniPersonel.sifre) return;
-    await supabase.from('kullanicilar').insert([yeniPersonel]);
-    setYeniPersonel({ adSoyad: '', kullaniciAdi: '', sifre: '', rol: 'ELEMAN' });
-    verileriGetir();
+    if (!yeniPersonel.adSoyad || !yeniPersonel.kullaniciAdi || !yeniPersonel.sifre) {
+      alert("Lütfen tüm alanları doldurun!");
+      return;
+    }
+    try {
+      const { error } = await supabase.from('users').insert([yeniPersonel]);
+      if (error) throw error;
+
+      setYeniPersonel({ adSoyad: '', kullaniciAdi: '', sifre: '', rol: 'ELEMAN' });
+      verileriGetir();
+      alert("✅ Kullanıcı başarıyla eklendi!");
+    } catch (err) {
+      console.error("Kullanıcı ekleme hatası:", err);
+      alert("Kullanıcı eklenirken hata oluştu: " + err.message);
+    }
   };
 
+  // 📦 ÜRÜN EKLEME (products tablosu)
   const urunEkle = async () => {
-    if (!yeniUrun.ad || !yeniUrun.fiyat) return;
-    await supabase.from('urunler').insert([{
-      ad: yeniUrun.ad,
-      fiyat: parseFloat(yeniUrun.fiyat),
-      stok: parseInt(yeniUrun.stok) || 0,
-      foto: yeniUrun.foto || "https://via.placeholder.com/150"
-    }]);
-    setYeniUrun({ ad: '', fiyat: '', stok: '', foto: '' });
-    verileriGetir();
+    if (!yeniUrun.ad || !yeniUrun.fiyat) {
+      alert("Lütfen ürün adı ve fiyatı girin!");
+      return;
+    }
+    try {
+      const { error } = await supabase.from('products').insert([{
+        ad: yeniUrun.ad,
+        fiyat: parseFloat(yeniUrun.fiyat),
+        stok: parseInt(yeniUrun.stok) || 0,
+        foto: yeniUrun.foto || "https://via.placeholder.com/150"
+      }]);
+      if (error) throw error;
+
+      setYeniUrun({ ad: '', fiyat: '', stok: '', foto: '' });
+      verileriGetir();
+      alert("✅ Ürün başarıyla eklendi!");
+    } catch (err) {
+      console.error("Ürün ekleme hatası:", err);
+      alert("Ürün eklenirken hata oluştu: " + err.message);
+    }
   };
 
   const firmaSil = async (id) => {
-    await supabase.from('musteriler').delete().eq('id', id);
-    verileriGetir();
+    try {
+      await supabase.from('customers').delete().eq('id', id);
+      verileriGetir();
+    } catch (err) { console.error("Silme hatası:", err); }
   };
 
   const kullaniciSil = async (id) => {
-    await supabase.from('kullanicilar').delete().eq('id', id);
-    verileriGetir();
+    try {
+      await supabase.from('users').delete().eq('id', id);
+      verileriGetir();
+    } catch (err) { console.error("Silme hatası:", err); }
   };
 
   const urunSil = async (id) => {
-    await supabase.from('urunler').delete().eq('id', id);
-    verileriGetir();
+    try {
+      await supabase.from('products').delete().eq('id', id);
+      verileriGetir();
+    } catch (err) { console.error("Silme hatası:", err); }
   };
 
   const secilenFirmaBilgisi = musteriler.find(m => m.ad === secilenCariDetay);
@@ -414,7 +462,7 @@ export default function PosScreen() {
                     <td>{h.tarih}</td>
                     <td>{h.eleman}</td>
                     <td>{h.musteri}</td>
-                    <td>{Array.isArray(h.urunlerListesi) ? h.urunlerListesi.map(u => `${u.miktar}x ${u.ad}`).join(', ') : ''}</td>
+                    <td>{typeof h.urunlerListesi === 'string' ? h.urunlerListesi : (Array.isArray(h.urunlerListesi) ? h.urunlerListesi.map(u => `${u.miktar}x ${u.ad}`).join(', ') : '')}</td>
                     <td>{h.tutar} TL</td>
                     <td className="text-yesil">{h.nakit} TL</td>
                     <td className="text-kirmizi">{h.veresiye} TL</td>
@@ -564,11 +612,7 @@ export default function PosScreen() {
                       .map(h => (
                         <tr key={h.id}>
                           <td>{h.tarih}</td>
-                          <td>
-                            {Array.isArray(h.urunlerListesi) && h.urunlerListesi.map((u, idx) => (
-                              <div key={idx}>• {u.miktar}x {u.ad} ({u.fiyat} TL)</div>
-                            ))}
-                          </td>
+                          <td>{h.urunlerListesi}</td>
                           <td>{h.tutar} TL</td>
                           <td className="text-yesil">{h.nakit} TL</td>
                           <td className="text-kirmizi">{h.veresiye} TL</td>
