@@ -35,7 +35,7 @@ function formatReceipt(satis) {
   rawText += INIT;
   rawText += FONT_A; 
   rawText += ALIGN_LEFT; 
-  rawText += BOLD_ON + '     ADEM HAKLI BAHARAT\n' + BOLD_OFF;
+  rawText += BOLD_ON + '    ADEM HAKLI BAHARAT\n' + BOLD_OFF;
   rawText += ' BILGI AMACLI MALI DEGERI YOKTUR\n';
   rawText += '------------------------------\n'; 
   rawText += `TARIH: ${satis.tarih}\n`;
@@ -203,7 +203,7 @@ export default function PosScreen() {
         tarih: sonSatisDetayi.tarih,
         eleman: sonSatisDetayi.eleman,
         musteri: sonSatisDetayi.musteri,
-        urunlerListesi: urunOzetMetni, 
+        urunler: urunOzetMetni, // 🟢 BURASI DÜZELTİLDİ
         tutar: sonSatisDetayi.toplamTutar,
         nakit: sonSatisDetayi.nakitOdienen,
         veresiye: sonSatisDetayi.veresiyeYazilan
@@ -462,7 +462,7 @@ export default function PosScreen() {
                     <td>{h.tarih}</td>
                     <td>{h.eleman}</td>
                     <td>{h.musteri}</td>
-                    <td>{typeof h.urunlerListesi === 'string' ? h.urunlerListesi : (Array.isArray(h.urunlerListesi) ? h.urunlerListesi.map(u => `${u.miktar}x ${u.ad}`).join(', ') : '')}</td>
+                    <td>{h.urunler}</td> {/* 🟢 BURASI DÜZELTİLDİ */}
                     <td>{h.tutar} TL</td>
                     <td className="text-yesil">{h.nakit} TL</td>
                     <td className="text-kirmizi">{h.veresiye} TL</td>
@@ -517,7 +517,7 @@ export default function PosScreen() {
                   <th>Telefon</th>
                   <th>Adres</th>
                   <th>Güncel Borç (Bakiye)</th>
-                  <th>İşlemler</th>
+                  <th>İşlem</th>
                 </tr>
               </thead>
               <tbody>
@@ -612,7 +612,7 @@ export default function PosScreen() {
                       .map(h => (
                         <tr key={h.id}>
                           <td>{h.tarih}</td>
-                          <td>{h.urunlerListesi}</td>
+                          <td>{h.urunler}</td> {/* 🟢 BURASI DÜZELTİLDİ */}
                           <td>{h.tutar} TL</td>
                           <td className="text-yesil">{h.nakit} TL</td>
                           <td className="text-kirmizi">{h.veresiye} TL</td>
